@@ -1,0 +1,71 @@
+<?php
+session_start();
+//database connection
+$connect = mysqli_connect("localhost", "root", "", "pms");
+if ($connect->connect_errno > 0) {
+    die("Unable to connect: " . $connect->connect_error);
+}//fetch pack_id using hyperlink in package.php
+
+
+if(!empty($_POST))
+{
+ $output = '';
+      $patients_firstName = mysqli_real_escape_string($connect, $_POST["patients_firstName"]);  
+      $patients_lastName = mysqli_real_escape_string($connect, $_POST["patients_lastName"]);  
+      $patients_address = mysqli_real_escape_string($connect, $_POST["patients_address"]);
+      $patients_city = mysqli_real_escape_string($connect, $_POST["patients_city"]);
+    $patients_password = mysqli_real_escape_string($connect, $_POST["patients_password"]);
+      $con_pass = mysqli_real_escape_string($connect, $_POST["con_pass"]);
+      $patients_phnNumber=mysqli_real_escape_string($connect, $_POST["patients_phnNumber"]);;
+      
+     if ($patients_firstName != "Dr") {
+        # code...
+        $query_patients = "INSERT INTO patients (patients_firstName, patients_lastName,patients_address,patients_city,patients_email,patients_phnNumber,patients_password)
+              VALUES ('" . $_POST["patients_firstName"] . "','" . $_POST["patients_lastName"] . "','" . $_POST['patients_address'] . "',
+              '" . $_POST['patients_city'] . "','" . $_POST["patients_email"] . "','" . $_POST["patients_phnNumber"] . "',"
+        . "'" . $_POST["patients_password"] . "')";
+        $result_patients = mysqli_query($conn, $query_patients);
+    }
+    else if($patients_firstName == "Dr"){
+        $query_doctors = "INSERT INTO doctors (doctors_firstName, doctors_lastName,doctors_address,doctors_city,doctors_email,doctors_phnNumber,doctors_password)
+              VALUES ('" . $_POST["patients_firstName"] . "','" . $_POST["patients_lastName"] . "','" . $_POST['patients_address'] . "',
+              '" . $_POST['patients_city'] . "','" . $_POST["patients_email"] . "','" . $_POST["patients_phnNumber"] . "',"
+        . "'" . $_POST["patients_password"] . "')";
+    $result_doctors = mysqli_query($conn, $query_doctors);
+
+    }
+    
+
+    //fetch this new user info
+    $sql_patients = "SELECT * from patients where patients_email='" . $patients_email . "' and patients_password='" . $patients_password . "' ";
+    $results_patients = mysqli_query($conn, $sql_patients);
+
+     //fetch this new user info
+    $sql_doctors = "SELECT * from doctors where doctors_email='" . $patients_email . "' and doctors_password='" . $patients_password . "' ";
+    $results_doctors = mysqli_query($conn, $sql_doctors);
+
+    if (mysqli_num_rows($results_patients) >= 1 && $patients_firstName != "admin") {
+        $_SESSION['patients_firstName'] = $patients_firstName;
+        $_SESSION['patients_lastName'] = $patients_lastName;
+        $_SESSION['patients_email'] = $patients_email;
+        $_SESSION['patients_password'] = $patients_password;
+        $_SESSION['patients_phnNumber'] = $patients_phnNumber;
+        
+    }
+    elseif (mysqli_num_rows($results_patients) == 0 && $patients_firstName == "Dr"){
+        $_SESSION['doctors_firstName'] = $patients_firstName;
+        $_SESSION['doctors_lastName'] = $patients_lastName;
+        $_SESSION['doctors_email'] = $patients_email;
+        $_SESSION['doctors_password'] = $patients_password;
+        $_SESSION['doctors_phnNumber'] =  $patients_phnNumber;
+     
+    }
+    else {
+        echo 'alert("Something wrong in Sign_up.php")';
+    }
+
+
+}
+
+
+?>
